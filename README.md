@@ -1,75 +1,75 @@
-# React + TypeScript + Vite
+# サーバーレス・ポートフォリオサイト
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+AWSのサーバーレスアーキテクチャを活用した、フルスタックなポートフォリオサイトです。
+フロントエンドの配信からバックエンドのメール送信機能まで、すべてスケーラブルかつ低コストな構成で構築しています。
 
-Currently, two official plugins are available:
+## 使用技術のバージョン
+- React, TypeScript, AWSサービス
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## React Compiler
+## 🏗 システム構成図
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```mermaid
+graph LR
+    User((ユーザー))
+    
+    subgraph "AWS Cloud (Global)"
+        CF[CloudFront]
+        CW[CloudWatch: 請求アラート]
+    end
 
-## Expanding the ESLint configuration
+    subgraph "AWS Cloud (ap-northeast-1)"
+        S3[(S3: 静的ホスティング)]
+        API[API Gateway]
+        L[Lambda: Python]
+        SES[SES: メール送信]
+    end
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+    User --> CF
+    CF --> S3
+    User -- お問い合わせ送信 --> API
+    API --> L
+    L --> SES
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## ✨ プロジェクトのポイント
+- 完全サーバーレス:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+  S3 + CloudFront + Lambda を採用。アクセスがない時はコストがほぼゼロになるよう設計。
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- セキュリティの担保:
+  
+  日本国外からのアクセスを制限。不要な海外トラフィックや攻撃を遮断。
+
+  CloudFront による HTTPS 通信の強制。
+
+- バックエンドの実装:
+
+  Python (Lambda) を使用し、API Gateway 経由でフロントエンドとお問い合わせ機能を連携。
+
+  Amazon SES を用いたメール通知システムを構築。
+
+- コスト・リスク管理:
+
+  CloudWatch で請求額を監視。5ドル以上の課金が発生した際に自動でメール通知するアラートを設定。
+
+## 🚀技術スタック
+Frontend: React (Vite), TypeScript
+
+Infrastructure: AWS (S3, CloudFront, WAF, API Gateway, Lambda, SES, CloudWatch)
+
+Language: Python (Backend)
+
+## 🔧環境設定
+`.env.local` ファイルに以下のようにAPIのエンドポイントURLを設定してください。
+```
+API_ENDPOINT_URL=your_api_endpoint_url
 ```
 
-# My_Portfolio
+# ライブラリのインストール
+npm install
+
+# ローカル開発サーバーの起動
+npm run dev
+
+※ お問い合わせ機能の動作には、.env.local に API のエンドポイント URL を設定する必要があります。
