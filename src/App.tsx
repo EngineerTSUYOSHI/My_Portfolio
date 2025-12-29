@@ -117,7 +117,7 @@ function App() {
                   ))}
                 </div>
                 {/* アイコン画像があれば表示 */}
-                <img src="/src/assets/python.png" alt="Python" className="w-6 h-6 opacity-50 group-hover:opacity-100 transition" />
+                <img src="/python.png" alt="Python" className="w-6 h-6 opacity-50 group-hover:opacity-100 transition" />
               </div>
               <h3 className="text-xl font-bold mb-4 text-slate-900">{work.title}</h3>
               <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
